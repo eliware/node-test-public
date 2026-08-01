@@ -37,6 +37,7 @@ const server = http.createServer((req, res) => {
 <body>
   <h1>Node.js test app</h1>
   <dl>
+    <dt>Application version</dt><dd>${esc(version)}</dd>
     <dt>Container hostname</dt><dd>${esc(os.hostname())}</dd>
     <dt>Container IP address(es)</dt><dd>${esc(getIpAddresses().join(', ') || 'none')}</dd>
     <dt>HTTP hostname</dt><dd>${esc(req.headers.host || '')}</dd>
