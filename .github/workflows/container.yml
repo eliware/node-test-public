@@ -31,7 +31,6 @@ jobs:
           images: ghcr.io/eliware/${{ github.event.repository.name }}
           tags: |
             type=raw,value=${{ github.ref_name }}
-            type=raw,value=latest
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -42,3 +41,28 @@ jobs:
           labels: |
             ${{ steps.meta.outputs.labels }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
+
+
+      - name: Update GitOps manifests
+        env:
+          GITOPS_REPO_TOKEN: ${{ secrets.GITOPS_REPO_TOKEN }}
+          IMAGE_TAG: ${{ github.ref_name }}
+        run: |
+          test -n "$GITOPS_REPO_TOKEN"
+          git clone "https://x-access-token:${GITOPS_REPO_TOKEN}@github.com/eliware/k8s-gitops.git" /tmp/k8s-gitops
+          cd /tmp/k8s-gitops
+
+          for file in \
+            clusters/region-a/apps/node-test-public.yaml \
+            clusters/region-b/apps/node-test-public.yaml
+          do
+            sed -i -E \
+              "s#(ghcr.io/eliware/node-test-public:)[^[:space:]"]+#\1${IMAGE_TAG}#" \
+              "$file"
+          done
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add clusters/region-a/apps/node-test-public.yaml clusters/region-b/apps/node-test-public.yaml
+          git diff --cached --quiet || git commit -m "Deploy node-test-public ${IMAGE_TAG}"
+          git push origin main
