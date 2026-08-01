@@ -1,5 +1,6 @@
 const http = require('http');
 const os = require('os');
+const { version } = require('./package.json');
 
 function getIpAddresses() {
   const interfaces = os.networkInterfaces();
@@ -22,7 +23,7 @@ function esc(value) {
 const server = http.createServer((req, res) => {
   if (req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok' }));
+    res.end(JSON.stringify({ status: 'ok', version }));
     return;
   }
 
