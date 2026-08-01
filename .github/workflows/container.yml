@@ -57,7 +57,7 @@ jobs:
             clusters/region-b/apps/node-test-public.yaml
           do
             sed -i -E \
-              "s#(ghcr.io/eliware/node-test-public:)[^[:space:]"]+#\1${IMAGE_TAG}#" \
+              "s#(ghcr.io/eliware/node-test-public:)[^[:space:]\"]+#\1${IMAGE_TAG}#" \
               "$file"
           done
 
